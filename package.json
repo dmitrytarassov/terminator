@@ -1,13 +1,21 @@
 {
-  "name": "terminator",
+  "name": "execution-terminator",
   "version": "0.0.1",
-  "description": "",
-  "scripts": {},
+  "main": "index.js",
+  "description": "An interactive 'safety terminate' for dangerous calls. It wraps an object/module so that before every function call it shows the call stack and a preview of arguments",
+  "repository": "https://github.com/dmitrytarassov/terminator.git",
+  "author": "Dmitriy Tarasov <meowbl@icloud.com>",
+  "keywords": ["process", "terminate", "inspector", "terminator", "security", "guard"],
+  "license": "MIT",
+  "scripts": {
+    "build": "tsup"
+  },
   "dependencies": {},
   "devDependencies": {
     "@types/node": "^24.3.0",
     "eslint": "9",
     "eslint-config-the-only-perfect": "^2.0.4",
+    "tsup": "8.3.5",
     "typescript": "^5.5.3"
   },
   "private": false

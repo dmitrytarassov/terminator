@@ -1,57 +1,56 @@
 # Terminator
 
-Интерактивный «предохранитель» для опасных вызовов. Оборачивает объект/модуль так, что перед каждым вызовом функции показывает стек вызова и предпросмотр аргументов, задаёт вопрос «Run?» и после выполнения — «Continue?». По умолчанию Enter = «Да».
+An interactive "safety terminate" for dangerous calls. It wraps an object/module so that before every function call it shows the call stack and a preview of arguments, asks **"Run?"**, and after execution asks **"Continue?"**. By default, pressing **Enter = Yes**.
 
-Работает синхронно. Удобно для скриптов миграций, админских CLI и локальных утилит, когда важно проверить, что вызывается внутри.
+Runs synchronously. Useful for migration scripts, admin CLIs, and local utilities when you need to double-check what’s being called inside.
 
 ---
 
-### Установка
+### Installation
 
-Требования: macOS/Linux с `/bin/bash`, Node.js ≥ 18.
+Requirements: macOS/Linux with `/bin/bash`, Node.js ≥ 18.
 
 ```bash
+bun add execution-terminator
+```
+
+### Usage
+
+Add snippet to beginning of your code.
+
+```typescript
+import fs from "fs";
+
+import { terminate } from "execution-terminator";
+
+terminate(fs, "fs");
+```
+
+### Demo
+
+To run the demo (TypeScript without build):
+
+```shell
 git clone https://github.com/dmitrytarassov/terminator.git
 cd terminator
 bun install
-```
 
-Для запуска демо (TypeScript без сборки):
-
-```bash
 bun run demo/terminate-fs.ts
 ```
 
----
+### How It Works
 
-### Быстрый старт
+- `terminate` iterates through all functions of an object and replaces them with wrappers.
 
-```ts
-import fs from "fs";
+- A wrapper calls terminator(type, functionName, args, callback):
+  - prints the stack (getExecutionPath) and a call preview (stringifyArg), 
+  - waits for confirmation "Run?" (Enter/y → run, anything else → process.exit(1)), 
+  - executes callback(), prints Result: ..., 
+  - asks "Continue?" (Enter/y → return result, otherwise exit with code 1). 
+- Confirmations are printed to stderr, results to stdout.
 
-import { terminate } from "@/index";
+**Default behavior:**
 
-terminate(fs, "fs");
+- Empty input (Enter) → Yes
 
-const data = fs.readFileSync("/tmp/secret", "utf-8");
-console.log("data:", data);
-```
-
----
-
-### Как это работает
-
-- `terminate` обходит все функции объекта и подменяет их обёртками.
-- Обёртка вызывает `terminator(type, functionName, args, callback)`:
-  - печатает стек (`getExecutionPath`) и предпросмотр вызова (`stringifyArg`),
-  - ждёт ответ на «Run?» (Enter/`y` → выполнить, иначе выход `process.exit(1)`),
-  - выполняет `callback()`, печатает `Result: ...`,
-  - спрашивает «Continue?» (Enter/`y` → вернуть результат, иначе выход с кодом 1).
-- Подтверждения печатаются в `stderr`, результаты — в `stdout`.
-
-Поведение по умолчанию:
-
-- Пустой ввод (Enter) трактуется как «Да».
-- Любой отличный от `y` ввод — «Нет» → немедленный `exit(1)`.
-
----
+- Any input other than y → No, immediate exit(1)
